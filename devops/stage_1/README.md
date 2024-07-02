@@ -2,4 +2,4 @@
 
 ## Stage 1
 
-### User Management Automation with bash script
+### User Creation Automation with bash script
