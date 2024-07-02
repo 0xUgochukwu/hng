@@ -29,10 +29,12 @@ password_file="/var/secure/user_passwords.txt"
 
 # Create files if they doesn't exist
 if [ ! -f "$log_file" ]; then
+  mkdir -p /var/log
   touch "$log_file"
 fi
 
 if [ ! -f "$password_file" ]; then
+  mkdir -p /var/secure
   touch "$password_file"
 fi
 
@@ -40,8 +42,6 @@ for (( i = 0; i < ${#users[@]}; i++ )); do
   user="${users[$i]}"
   user_groups="${groups[$i]}"
 
-  echo "Creating User: $user"
-  
   if id "$user" &>/dev/null; then
     echo "User $user already exists, Skipped" | tee -a "$log_file"
   else
@@ -64,7 +64,7 @@ for (( i = 0; i < ${#users[@]}; i++ )); do
     echo "Password for $user set" | tee -a "$log_file"
     echo "$user:$password" >> "$password_file"
 
-    # Create personal group
+    # Create personal group if linux distro didn't create it by default
     if grep -q "^$user:" /etc/group; then
       echo "Personal group $user already exists" | tee -a "$log_file"
     else
@@ -75,7 +75,6 @@ for (( i = 0; i < ${#users[@]}; i++ )); do
         exit 1
       fi
     fi
-      echo "Personal group $user created for $user" | tee -a "$log_file"
 
     # Add user to personal group
     usermod -aG "$user" "$user"
